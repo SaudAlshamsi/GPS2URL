@@ -109,3 +109,7 @@ It's important to change the "secretseed" with your own string in production env
 
 The GPS module may need some minutes to sync the satellite network once started. 
 
+The GPS DOES not work inside buildings, it must have a clear of sight
+visibility with minimum 3 satellites.
+
+
