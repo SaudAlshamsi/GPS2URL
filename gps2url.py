@@ -73,20 +73,20 @@ try:
     serw = serial.Serial(portwrite, baudrate = 115200, timeout = 1,rtscts=True, dsrdtr=True)
     # for https://sixfab.com/product/raspberry-pi-lte-m-nb-iot-egprs-cellular-hat/
     print("Configuration: (1/5)")
-#    serw.write('AT+QGPS=1\r'.encode())
-#    time.sleep(1)
+    serw.write('AT+QGPS=1\r'.encode())
+    time.sleep(1)
     # for https://docs.sixfab.com/docs/raspberry-pi-3g-4g-lte-base-hat-introduction
     print("Configuration: (2/5)")
-#    serw.write('AT$GPSRST\r'.encode())
-#    time.sleep(1)
-    print("Configuration: (3/5)")
-#    serw.write('AT$GPSNVRAM=15,0\r'.encode())
-#    time.sleep(1)
-    print("Configuration: (4/5)")
-#    serw.write('AT$GPSNMUN=2,1,1,1,1,1,1\r'.encode())
+    serw.write('AT$GPSRST\r'.encode())
     time.sleep(1)
-#    serw.write('AT$GPSP=1\r'.encode())
-#    serw.close()
+    print("Configuration: (3/5)")
+    serw.write('AT$GPSNVRAM=15,0\r'.encode())
+    time.sleep(1)
+    print("Configuration: (4/5)")
+    serw.write('AT$GPSNMUN=2,1,1,1,1,1,1\r'.encode())
+    time.sleep(1)
+    serw.write('AT$GPSP=1\r'.encode())
+    serw.close()
     time.sleep(1)
     print("Configuration: (5/5) completed")
 except Exception as e: 
@@ -113,6 +113,7 @@ while True:
         sdata = data.split(",")
         if sdata[2] == 'V':
             print("[Warning] GPS location not yet available\n")
+            continue
         #parse data    
         tm = sdata[1][0:2] + ":" + sdata[1][2:4] + ":" + sdata[1][4:6] #time
         lat = decode(sdata[3]) 	     	#latitude
