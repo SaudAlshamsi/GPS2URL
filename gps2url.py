@@ -153,7 +153,7 @@ while True:
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
         try:     
-            with urllib.request.urlopen(endpoints,context=ctx) as response:
+            with urllib.request.urlopen(endpoints,timeout=5,context=ctx) as response:    
                 answer = response.read()
         except Exception as e: 
             print("[Error] Endpoint not reachable with error:",e)
