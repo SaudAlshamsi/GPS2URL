@@ -25,6 +25,7 @@ import time
 import hashlib
 import sys, getopt
 import ssl
+import os
 
 ############################ CUSTOM DEFAULT PARAMETERS #########################
 endpoint="https://yourdomainname.org?lat=%LAT%&long=%LONG%&uid=%HOSTNAME%";
@@ -32,6 +33,7 @@ portwrite = "/dev/ttyUSB2"  # used to enabled the gps module
 portread = "/dev/ttyUSB1"	    # for reading the gps coordinates
 interval = 6.0	    # report the position every xx seconds
 intervalsameposition= 300.0  # report the same position every xxx seconds
+shutdowntime= 3600.0  # automatica shutdown if there is no change in position for > shutdowntime in seconds
 secretseed= "478c60b2f1e806f41f4b81d882594e8a54b9d2554dd1df30b9607024a7bb39ac"
 ################## END CUSTOM PARAMETERS #######################################
 # functiont to decode coordinates
@@ -98,6 +100,7 @@ except Exception as e:
 newread = 0.0
 lastspeed="-1"
 lasttimeurl=0.0
+lasttimemove=0.0
 # set serial port parameters for receiving
 print("[Info] Receiving GPS data\n")
 ser = serial.Serial(portread, baudrate = 115200, timeout = 0.5,rtscts=True, dsrdtr=True)
@@ -143,10 +146,17 @@ while True:
         buf1=buf.replace("%DATE%",dt)
         buf=buf1.replace("%TIME%",tm)
         endpoints=buf1.replace("%TRUECOURSE%",trueCourse)
+        # do not send position if it does not change for "intervalsameposition"
         if lastspeed==speed and speed==0  and currenttm < (lasttimeurl+intervalsameposition):
             print("[Info] Position not changed, not sending to endpoint for now")
             newread=time.time()+interval
             continue
+         # execute automatic shutdown if the position is the same for "shutdowntime"
+        if lastspeed==speed and speed==0  and currenttm > (lasttimemove+shutdowntime):
+            print("[Info] Position not changed for ",shutdowntime,"seconds shutting down...")
+            os.system("/usr/sbin/shutdown -h now")
+        if(float(speed)>0.1):
+            lasttimemove=currenttm
         # Call endpoint URL
         print("[Info] Contacting endpoint: %s\n"% endpoints)
         ctx = ssl.create_default_context()
